@@ -1,5 +1,5 @@
 The pom should do the following:
-1) Configure the Target Server or any other configurations
+1) Configure the Target Servers or/and any other configurations
 2) Update the proxy config to include the deployment suffix
 3) Deploy to Apigee
 
@@ -32,3 +32,5 @@ mvn clean install -Ptest \
  -Dskip.config=true
 
 ```
+
+**NOTE: The `deployment.suffix` defaults to `1` and `skip.config` defaults to `false`**
