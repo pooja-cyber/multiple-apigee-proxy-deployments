@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<APIProxy revision="1" name="MockAPI">
+    <Basepaths>/mock</Basepaths>
+    <ConfigurationVersion majorVersion="4" minorVersion="0"/>
+    <CreatedAt>1509404310046</CreatedAt>
+    <CreatedBy>ssvaidyanathan@apigee.com</CreatedBy>
+    <Description></Description>
+    <DisplayName>MockAPI</DisplayName>
+    <LastModifiedAt>1509404353536</LastModifiedAt>
+    <LastModifiedBy>ssvaidyanathan@apigee.com</LastModifiedBy>
+    <Policies/>
+    <ProxyEndpoints>
+        <ProxyEndpoint>default</ProxyEndpoint>
+    </ProxyEndpoints>
+    <Resources/>
+    <Spec></Spec>
+    <TargetServers/>
+    <TargetEndpoints>
+        <TargetEndpoint>default</TargetEndpoint>
+    </TargetEndpoints>
+    <validate>false</validate>
+</APIProxy>

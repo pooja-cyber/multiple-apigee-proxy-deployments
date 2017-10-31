@@ -1,0 +1,32 @@
+[
+    {
+        "name": "mockTarget1",
+        "host": "mocktarget.apigee.net",
+        "isEnabled": true,
+        "port": 80
+    },
+    {
+        "name": "mockTarget2",
+        "host": "mocktarget.apigee.net",
+        "isEnabled": true,
+        "port": 80
+    },
+    {
+        "name": "mockTarget3",
+        "host": "mocktarget.apigee.net",
+        "isEnabled": true,
+        "port": 80
+    },
+    {
+        "name": "mockTarget4",
+        "host": "mocktarget.apigee.net",
+        "isEnabled": true,
+        "port": 80
+    },
+    {
+        "name": "mockTarget5",
+        "host": "mocktarget.apigee.net",
+        "isEnabled": true,
+        "port": 80
+    }
+]

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>apigee</groupId>
+  <artifactId>mock</artifactId>
+  <version>-</version>
+  <name>MockAPI-${deployment.suffix}</name>
+  <packaging>pom</packaging>
+  <!-- Test -->
+  <pluginRepositories>
+    <pluginRepository>
+      <id>central</id>
+      <name>Maven Plugin Repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <org.slf4j.simpleLogger.defaultLogLevel>info</org.slf4j.simpleLogger.defaultLogLevel>
+    <project.root.dir>${basedir}</project.root.dir>
+    <target.root.dir>${basedir}/target</target.root.dir>
+    <deployment.suffix>1</deployment.suffix> <!--default when not passed -->
+    <skip.config>false</skip.config> <!--default when not passed -->
+  </properties>
+
+  <!-- This is where you add the environment specific properties under various profile names -->
+  <!-- For apigee.options, refer to "Advanced Configuration Options" under https://github.com/apigee/apigee-deploy-maven-plugin#pom-xml-sample -->
+  <profiles>
+    <profile>
+      <id>test</id>
+      <properties>
+        <apigee.profile>test</apigee.profile>
+        <apigee.env>${env}</apigee.env>
+        <apigee.hosturl>https://api.enterprise.apigee.com</apigee.hosturl>
+        <apigee.apiversion>v1</apigee.apiversion>
+        <apigee.org>${org}</apigee.org>
+        <apigee.username>${username}</apigee.username>
+        <apigee.password>${password}</apigee.password>
+        <apigee.options>update</apigee.options>
+      </properties>
+    </profile>
+    <profile>
+      <id>prod</id>
+      <properties>
+        <apigee.profile>prod</apigee.profile>
+        <apigee.env>${env}</apigee.env>
+        <apigee.hosturl>https://api.enterprise.apigee.com</apigee.hosturl>
+        <apigee.apiversion>v1</apigee.apiversion>
+        <apigee.org>${org}</apigee.org>
+        <apigee.username>${username}</apigee.username>
+        <apigee.password>${password}</apigee.password>
+        <apigee.options>override</apigee.options>
+        <apigee.override.delay>5</apigee.override.delay>
+      </properties>
+    </profile>
+  </profiles>
+
+  <build>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>io.apigee.build-tools.enterprise4g</groupId>
+          <artifactId>apigee-edge-maven-plugin</artifactId>
+          <version>1.1.5</version>
+        </plugin>
+        <plugin>
+          <groupId>com.apigee.edge.config</groupId>
+          <artifactId>apigee-config-maven-plugin</artifactId>
+          <version>1.2</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+
+      <!-- copy the full apiproxy folder to target folder -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <overwrite>true</overwrite>
+              <resources>
+                <resource>
+                  <!--source -->
+                  <directory>${project.root.dir}</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                    <include>apiproxy/**</include>
+                    <include>resources/**</include>
+                  </includes>
+                </resource>
+              </resources>
+              <!--target -->
+              <outputDirectory>${target.root.dir}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Rename the base xml as the proxy name itself is updated -->
+      <plugin>
+        <groupId>com.coderplus.maven.plugins</groupId>
+        <artifactId>copy-rename-maven-plugin</artifactId>
+        <version>1.0.1</version>
+        <executions>
+          <execution>
+            <id>rename-resources</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>rename</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <sourceFile>${target.root.dir}/apiproxy/MockAPI.xml</sourceFile>
+          <destinationFile>${target.root.dir}/apiproxy/MockAPI-${deployment.suffix}.xml</destinationFile>
+        </configuration>
+      </plugin>
+
+      <!-- update configurations to support multiple basepath, name ,etc -->
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.2</version>
+        <executions>
+          <execution>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <basedir>${target.root.dir}</basedir>
+          <includes>
+            <include>apiproxy/proxies/default.xml</include>
+            <include>apiproxy/targets/default.xml</include>
+            <include>apiproxy/MockAPI-${deployment.suffix}.xml</include>
+          </includes>
+          <replacements>
+            <replacement>
+              <token>/mock</token>
+              <value>/mock${deployment.suffix}</value>
+            </replacement>
+            <replacement>
+              <token>mockTarget</token>
+              <value>mockTarget${deployment.suffix}</value>
+            </replacement>
+            <replacement>
+              <token>MockAPI</token>
+              <value>MockAPI-${deployment.suffix}</value>
+            </replacement>
+          </replacements>
+        </configuration>
+      </plugin>
+
+      <!-- Proxy configurations like Cache, Target Server, KVM ,etc -->
+      <plugin>
+        <groupId>com.apigee.edge.config</groupId>
+        <artifactId>apigee-config-maven-plugin</artifactId>
+        <executions>
+          <!-- Configure Target Server -->
+          <execution>
+            <id>create-config-targetserver</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>targetservers</goal>
+            </goals>
+          </execution>
+        </executions>
+        <!-- if you want to skip config, you can pass -Dskip.config=true -->
+        <configuration>
+          <skip>${skip.config}</skip>
+        </configuration>
+      </plugin>
+
+      <!-- Build and deploy -->
+      <plugin>
+        <groupId>io.apigee.build-tools.enterprise4g</groupId>
+        <artifactId>apigee-edge-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>configure-bundle-step</id>
+            <phase>package</phase>
+            <goals>
+              <goal>configure</goal>
+            </goals>
+          </execution>
+          <!--deploy bundle -->
+          <execution>
+            <id>deploy-bundle-step</id>
+            <phase>install</phase>
+            <goals>
+              <goal>deploy</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>
